@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MemPalace MCP: Complete Installation Guide</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #7c6af7;
+    --accent2: #4fa3e0;
+    --green: #4caf82;
+    --yellow: #e0b84f;
+    --red: #e06b6b;
+    --text: #d4d8f0;
+    --muted: #7a80a0;
+    --code-bg: #12151e;
+    --code-border: #2a2f4a;
+    --font-mono: 'Consolas', 'Cascadia Code', 'Fira Code', monospace;
+    --font-body: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.7; }
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .layout { display: flex; min-height: 100vh; }
+  nav {
+    width: 270px; min-width: 220px; background: var(--surface);
+    border-right: 1px solid var(--border); padding: 28px 0 40px 0;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0;
+  }
+  nav .nav-title { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 0 22px 14px 22px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  nav a { display: block; padding: 5px 22px; color: var(--muted); font-size: 13px; border-left: 2px solid transparent; }
+  nav a:hover { color: var(--text); text-decoration: none; border-left-color: var(--accent); }
+  nav a.sub { padding-left: 38px; font-size: 12px; }
+  nav a.opt { color: #5a6090; font-style: italic; }
+  main { flex: 1; max-width: 920px; padding: 48px 52px 80px 52px; min-width: 0; }
+  .doc-header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 40px; }
+  .doc-header h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: .04em; background: var(--surface2); border: 1px solid var(--border); color: var(--accent2); }
+  section { margin-bottom: 52px; }
+  h2 { font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 15px; font-weight: 600; color: var(--accent2); margin: 24px 0 10px 0; }
+  p { margin-bottom: 12px; }
+  .code-block { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 8px; margin: 10px 0 16px 0; overflow: hidden; }
+  .code-label { background: var(--surface2); border-bottom: 1px solid var(--code-border); padding: 6px 14px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .code-label .ps { color: #7cb3e8; }
+  .code-label .sh { color: var(--green); }
+  pre { padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; color: #c9d0f0; white-space: pre-wrap; }
+  pre .cm { color: #525870; font-style: italic; }
+  code { font-family: var(--font-mono); font-size: 13px; background: var(--surface2); border: 1px solid var(--code-border); padding: 1px 6px; border-radius: 4px; color: var(--accent2); }
+  .env-banner { border-radius: 6px; padding: 12px 16px; margin: 0 0 20px 0; font-size: 13px; font-weight: 600; letter-spacing: .04em; }
+  .env-banner.ps-env { background: #0d1f35; border: 1px solid #1e3a5a; color: #7cb3e8; }
+  .env-banner.wsl-env { background: #0d2418; border: 1px solid #1e4a30; color: var(--green); }
+  .env-banner span { font-weight: 400; color: var(--muted); margin-left: 10px; }
+  .phase-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .phase-num { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-title { font-size: 19px; font-weight: 700; color: #fff; }
+  .substep { margin: 22px 0; padding-left: 18px; border-left: 2px solid var(--border); }
+  .substep-label { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .04em; margin-bottom: 8px; }
+  .note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 6px; padding: 11px 15px; font-size: 13px; margin: 10px 0; }
+  .note.red { border-left-color: var(--red); }
+  .note.green { border-left-color: var(--green); }
+  .note.blue { border-left-color: var(--accent2); }
+  .note strong { color: #fff; }
+  .steps-list { list-style: none; padding: 0; margin: 10px 0 16px 0; }
+  .steps-list li { padding: 7px 0 7px 22px; border-bottom: 1px solid var(--border); font-size: 13px; position: relative; }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list li::before { content: attr(data-n); position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--surface2); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .07em; padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+  td code { font-size: 12px; }
+  .optional-section { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 52px; overflow: hidden; }
+  .optional-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--surface2); cursor: pointer; user-select: none; }
+  .optional-toggle:hover { background: #2a2e44; }
+  .optional-toggle .opt-label { font-size: 16px; font-weight: 700; color: var(--muted); }
+  .optional-toggle .opt-badge { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); color: var(--yellow); }
+  .optional-toggle .chevron { color: var(--muted); font-size: 18px; }
+  .optional-body { display: none; padding: 24px 24px 32px 24px; }
+  .optional-body.open { display: block; }
+  @media (max-width: 860px) { nav { display: none; } main { padding: 28px 18px 60px 18px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="nav-title">MemPalace Setup</div>
+  <a href="#envs">Environments Explained</a>
+  <a href="#overview">Overview and Architecture</a>
+  <a href="#phase1">Phase 1: Windows Prerequisites</a>
+  <a class="sub" href="#s1a">1a. Install and Clean Up PowerShell</a>
+  <a class="sub" href="#s1b">1b. Verify Virtualization</a>
+  <a class="sub" href="#s1c">1c. Install WSL2</a>
+  <a class="sub" href="#s1d">1d. Update WSL2 Kernel</a>
+  <a class="sub" href="#s1e">1e. Unblock Scripts</a>
+  <a href="#phase2">Phase 2: WSL2 Stability Fix</a>
+  <a href="#phase3">Phase 3: Docker Desktop</a>
+  <a href="#phase4">Phase 4: Directory Structure</a>
+  <a href="#phase5">Phase 5: Clone MemPalace</a>
+  <a href="#phase6">Phase 6: Dockerfile and compose.yml</a>
+  <a href="#phase7">Phase 7: Start and Verify</a>
+  <a href="#phase8">Phase 8: Tailscale Funnel</a>
+  <a href="#phase9">Phase 9: Backup</a>
+  <a href="#phase10">Phase 10: Connect to Perplexity</a>
+  <a href="#phase11">Phase 11: Restore from Backup</a>
+  <a class="sub opt" href="#caddy">Optional: Caddy Auth Layer</a>
+  <a href="#troubleshoot">Troubleshooting</a>
+  <a href="#reference">Quick Reference</a>
+</nav>
+
+<main>
+
+<div class="doc-header">
+  <h1>MemPalace MCP: Complete Installation Guide</h1>
+  <div class="meta">
+    <span>Author: Vasily S. Levin</span>
+    <span>Revised: 2026-06-30</span>
+    <span><span class="badge">Windows 11</span></span>
+    <span><span class="badge">WSL2</span></span>
+    <span><span class="badge">Docker</span></span>
+    <span><span class="badge">Tailscale Funnel</span></span>
+  </div>
+</div>
+
+<section id="envs">
+  <h2>Environments Explained</h2>
+  <p>This guide uses two environments. Every code block is labeled so you always know where to run it.</p>
+  <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)<span>Windows environment. Right-click the black PowerShell icon in the Start menu and select Run as Administrator.</span></div>
+  <div class="env-banner wsl-env">WSL (Ubuntu) — Linux shell<span>Linux environment running inside Windows. To enter: open black PowerShell, type <code style="background:transparent;border:none;color:#4caf82;">wsl</code> and press Enter. Your prompt changes from <code style="background:transparent;border:none;color:#4caf82;">PS C:\&gt;</code> to <code style="background:transparent;border:none;color:#4caf82;">user@machine:~$</code>. To leave WSL and return to PowerShell, type <code style="background:transparent;border:none;color:#4caf82;">exit</code>.</span></div>
+  <div class="note blue"><strong>sudo password:</strong> The first time you run a <code>sudo</code> command in a WSL session, Linux asks for your UNIX password. This is the password you set when Ubuntu opened for the first time after WSL installed (step 1c). It is not your Windows password. After entering it once, subsequent <code>sudo</code> commands in the same terminal window do not prompt again for approximately 15 minutes.</div>
+  <div class="note"><strong>Prompt reference:</strong><br>
+    PowerShell: <code>PS C:\Users\you&gt;</code><br>
+    WSL (Ubuntu): <code>you@machinename:~$</code>
+  </div>
+</section>
+
+<section id="overview">
+  <h2>Overview and Architecture</h2>
+  <p>MemPalace runs as a Docker container inside WSL2 on Windows 11. Tailscale Funnel exposes the container port to the public internet over HTTPS so Perplexity can reach it as a custom MCP connector. The data directory is a bind mount so palace contents survive container rebuilds.</p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Component</th><th>Role</th><th>Config</th></tr>
+      <tr><td>Docker container</td><td>Runs MemPalace MCP server</td><td><code>mempalace-mcp</code> on local port 8080</td></tr>
+      <tr><td>Bind mount</td><td>Persists palace data outside container</td><td><code>/home/user/mempalace-data:/root/.mempalace</code></td></tr>
+      <tr><td>Tailscale Funnel</td><td>Proxies public HTTPS (443) to local 8080</td><td><code>https://&lt;hostname&gt;.&lt;tailnet-id&gt;.ts.net/mcp</code></td></tr>
+      <tr><td>WSL cron</td><td>Snapshots palace every 6 hours</td><td><code>0 */6 * * * backup-mempalace.sh</code></td></tr>
+      <tr><td>Perplexity MCP</td><td>Consumes the MCP endpoint</td><td>Custom connector URL at <code>/mcp</code></td></tr>
+    </table>
+  </div>
+  <div class="note"><strong>Path note:</strong> Live data is at <code>/home/user/mempalace-data</code> (WSL native filesystem). SQLite and ChromaDB need POSIX file locking, which Windows 9P mounts (<code>/mnt/c</code>, <code>/mnt/d</code>) do not implement correctly. Never place palace data on a mounted Windows path.</div>
+  <div class="note"><strong>Port note:</strong> Tailscale Funnel listens on public port 443 (standard HTTPS) and forwards to your local container on port 8080. Both numbers are correct and refer to opposite sides of the proxy.</div>
+</section>
+
+<section id="phase1">
+  <div class="phase-header"><div class="phase-num">1</div><div class="phase-title">Windows Prerequisites</div></div>
+
+  <div class="substep" id="s1a">
+    <div class="substep-label">1a. Install and Clean Up PowerShell</div>
+    <p>Windows ships with two PowerShell versions. The old one has a blue icon and is named Windows PowerShell. The new one has a black icon and is simply named PowerShell. This guide requires the black icon version throughout. Step 1a installs it, removes old shortcuts, and removes any outdated standalone copy.</p>
+    <p>Open the blue Windows PowerShell as Administrator for this one step only. After step 1a completes, close it and use only the black PowerShell icon for everything that follows.</p>
+    <div class="code-block">
+      <div class="code-label"><span class="ps">Blue Windows PowerShell</span> as Administrator (this step only)</div>
+<pre><span class="cm"># Install the new black PowerShell</span>
+winget install --id Microsoft.PowerShell --source winget --accept-package-agreements --accept-source-agreements
+
+<span class="cm"># Remove old Windows PowerShell shortcuts from Start menu</span>
+$oldPSPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Windows PowerShell"
+if (Test-Path $oldPSPath) {
+    Get-ChildItem $oldPSPath | Remove-Item -Force
+    Write-Host "Old Windows PowerShell shortcuts removed."
+} else {
+    Write-Host "No old shortcuts found."
+}
+
+<span class="cm"># Remove any outdated standalone PowerShell version installed via MSI</span>
+$installed = winget list --name "PowerShell" 2&gt;$null
+$old = $installed | Select-String "PowerShell" | Where-Object { $_ -notmatch "^\s*Name" -and $_ -notmatch "7\.[6-9]|[89]\." }
+if ($old) {
+    $ver = (($old -split "\s+") | Where-Object { $_ -match "^\d" } | Select-Object -First 1)
+    winget uninstall --name "PowerShell" --version $ver
+    Write-Host "Outdated PowerShell version removed."
+} else {
+    Write-Host "No outdated standalone PowerShell version found."
+}</pre>
+    </div>
+    <p>Close the blue PowerShell window. From this point forward, right-click the black PowerShell icon in the Start menu and select <strong>Run as Administrator</strong> for every step labeled "PowerShell as Administrator."</p>
+    <div class="note green"><strong>Verify:</strong> Open the black PowerShell as Administrator and run <code>$PSVersionTable.PSVersion</code>. The Major version should be 7 or higher.</div>
+  </div>
+
+  <div class="substep" id="s1b">
+    <div class="substep-label">1b. Verify Virtualization</div>
+    <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+    <div class="code-block">
+      <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>Get-ComputerInfo -Property HyperVisorPresent</pre>
+    </div>
+    <p>Must return <code>True</code>. If <code>False</code>, enable Intel VT-x or AMD-V in BIOS before continuing.</p>
+  </div>
+
+  <div class="substep" id="s1c">
+    <div class="substep-label">1c. Install WSL2</div>
+    <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+    <div class="code-block">
+      <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>wsl --install</pre>
+    </div>
+    <p>Reboot after this command. Some machines prompt. Some do not. Reboot regardless.</p>
+    <p>After reboot, Ubuntu normally opens automatically and asks for a UNIX username and password. If it does not open automatically, find Ubuntu in the Start menu and launch it manually. Set and record the username and password. This password is what Linux asks for whenever you run <code>sudo</code> in WSL.</p>
+    <p>If Ubuntu opens but does not prompt for a password at all, set one manually:</p>
+    <div class="code-block">
+      <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>passwd</pre>
+    </div>
+    <div class="note">The <code>wsl</code> command to enter Linux is normally available after this reboot. If it is not recognized immediately, wait 30 seconds and try again, or reopen PowerShell.</div>
+  </div>
+
+  <div class="substep" id="s1d">
+    <div class="substep-label">1d. Update WSL2 Kernel</div>
+    <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+    <div class="code-block">
+      <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>wsl --update
+wsl --set-default-version 2</pre>
+    </div>
+  </div>
+
+  <div class="substep" id="s1e">
+    <div class="substep-label">1e. Unblock PowerShell Scripts</div>
+    <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+    <div class="code-block">
+      <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>Get-ChildItem *.ps1 | Unblock-File</pre>
+    </div>
+  </div>
+</section>
+
+<section id="phase2">
+  <div class="phase-header"><div class="phase-num">2</div><div class="phase-title">WSL2 Stability Fix (.wslconfig)</div></div>
+  <p>WSL2 aggressively reclaims RAM during idle periods and can suspend container processes without a visible crash. Cap memory before starting Docker. The <code>.wslconfig</code> location follows your <code>.cfg</code> disk layout: a file symlink at the hardcoded path WSL2 reads, with the real file under <code>.cfg\wsl\</code>. WSL2 follows the symlink transparently. File symlinks require PowerShell to be run as Administrator or Developer Mode enabled in Windows Settings.</p>
+  <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator) for all steps in this phase</div>
+
+  <h3>2.1 Dual-drive (C: OS + D: data)</h3>
+  <p>Real file: <code>D:\.cfg\wsl\.wslconfig</code>. Symlink: <code>C:\Users\&lt;username&gt;\.wslconfig</code> points to it.</p>
+  <div class="code-block">
+    <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>New-Item -ItemType Directory -Path "D:\.cfg\wsl" -Force
+
+echo "[wsl2]`nmemory=8GB`nswap=0" | Out-File -FilePath "D:\.cfg\wsl\.wslconfig" -Encoding utf8
+
+$src = "C:\Users\$env:USERNAME\.wslconfig"
+if (Test-Path $src) { Remove-Item $src -Force }
+New-Item -ItemType SymbolicLink -Path $src -Target "D:\.cfg\wsl\.wslconfig"
+
+Get-Item -Force $src | Select-Object FullName, LinkType, Target
+<span class="cm"># Expected: LinkType = SymbolicLink, Target = D:\.cfg\wsl\.wslconfig</span></pre>
+  </div>
+
+  <h3>2.2 Single-drive (C: only)</h3>
+  <p>Real file: <code>C:\Users\&lt;username&gt;\.cfg\wsl\.wslconfig</code>. Symlink: <code>C:\Users\&lt;username&gt;\.wslconfig</code> points to it.</p>
+  <div class="code-block">
+    <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>New-Item -ItemType Directory -Path "$env:USERPROFILE\.cfg\wsl" -Force
+
+echo "[wsl2]`nmemory=8GB`nswap=0" | Out-File -FilePath "$env:USERPROFILE\.cfg\wsl\.wslconfig" -Encoding utf8
+
+$src = "C:\Users\$env:USERNAME\.wslconfig"
+if (Test-Path $src) { Remove-Item $src -Force }
+New-Item -ItemType SymbolicLink -Path $src -Target "$env:USERPROFILE\.cfg\wsl\.wslconfig"
+
+Get-Item -Force $src | Select-Object FullName, LinkType, Target
+<span class="cm"># Expected: LinkType = SymbolicLink, Target = C:\Users\&lt;username&gt;\.cfg\wsl\.wslconfig</span></pre>
+  </div>
+
+  <h3>2.3 Apply (either setup)</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="ps">PowerShell</span></div>
+<pre>wsl --shutdown
+<span class="cm"># Wait five seconds. Docker Desktop restarts automatically.</span></pre>
+  </div>
+</section>
+
+<section id="phase3">
+  <div class="phase-header"><div class="phase-num">3</div><div class="phase-title">Docker Desktop</div></div>
+
+  <h3>3.1 Install</h3>
+  <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>winget install Docker.DockerDesktop</pre>
+  </div>
+  <p>During install, select <strong>Use WSL 2 instead of Hyper-V</strong>. Reboot after install. Some machines prompt. Some do not. Reboot regardless.</p>
+
+  <h3>3.2 Enable WSL Integration</h3>
+  <p>Open Docker Desktop, then Settings &gt; Resources &gt; WSL Integration, enable Ubuntu, then click <strong>Apply &amp; restart</strong> in the bottom right corner.</p>
+
+  <h3>3.3 Verify</h3>
+  <p>Enter WSL: open black PowerShell, type <code>wsl</code> and press Enter. Your prompt changes to <code>user@machine:~$</code>.</p>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker compose version
+docker run hello-world</pre>
+  </div>
+  <p>Both must succeed before continuing. If <code>docker compose version</code> errors, WSL integration was not applied; revisit step 3.2.</p>
+</section>
+
+<section id="phase4">
+  <div class="phase-header"><div class="phase-num">4</div><div class="phase-title">Directory Structure</div></div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>mkdir -p /home/user/mempalace-data
+mkdir -p ~/mempalace-docker</pre>
+  </div>
+</section>
+
+<section id="phase5">
+  <div class="phase-header"><div class="phase-num">5</div><div class="phase-title">Clone MemPalace</div></div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+
+  <h3>5.0 Update package index</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>sudo apt update &amp;&amp; sudo apt upgrade -y</pre>
+  </div>
+  <div class="note"><strong>First sudo prompt:</strong> Linux asks for the UNIX password you set in step 1c. Type it and press Enter. Characters do not appear on screen while typing. The session remembers it for approximately 15 minutes.</div>
+
+  <h3>5.1 Clone into Compose Directory</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cd ~/mempalace-docker
+git clone https://github.com/MemPalace/mempalace.git .
+git remote add upstream https://github.com/MemPalace/mempalace.git</pre>
+  </div>
+  <div class="note">Fork note: Vasily's fork tracks <code>develop</code>. If cloning the fork, substitute the fork URL and run <code>git checkout develop</code> after cloning.</div>
+
+  <h3>5.2 Confirm Dockerfile Exists</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>ls ~/mempalace-docker/Dockerfile</pre>
+  </div>
+  <p>If this errors, the clone did not complete. Re-run the clone step.</p>
+</section>
+
+<section id="phase6">
+  <div class="phase-header"><div class="phase-num">6</div><div class="phase-title">Dockerfile and compose.yml</div></div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+
+  <h3>6.1 Dockerfile</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/mempalace-docker/Dockerfile &lt;&lt; 'EOF'
+FROM python:3.11-slim
+RUN pip install mempalace mcp-proxy
+WORKDIR /root
+CMD ["mcp-proxy", "--host", "0.0.0.0", "--port", "8080", "--stateless", "--allow-origin=*", "--", "mempalace-mcp", "--transport", "stdio"]
+EOF</pre>
+  </div>
+  <p><code>--stateless</code> makes mcp-proxy accept connections without a pre-existing session ID, which SSE clients including Perplexity require. <code>--allow-origin=*</code> permits cross-origin connections from Perplexity.</p>
+
+  <h3>6.2 compose.yml</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/mempalace-docker/compose.yml &lt;&lt; 'EOF'
+services:
+  mempalace-mcp:
+    build: .
+    container_name: mempalace-mcp
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/user/mempalace-data:/root/.mempalace
+EOF</pre>
+  </div>
+  <p><code>restart: always</code> is required. The value <code>unless-stopped</code> causes the container to silently go offline when Docker Desktop restarts in the background. Always use <code>always</code>.</p>
+</section>
+
+<section id="phase7">
+  <div class="phase-header"><div class="phase-num">7</div><div class="phase-title">Start and Verify</div></div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+
+  <h3>7.1 Check Port Availability</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>ss -tlnp | grep 8080</pre>
+  </div>
+  <p>No output means the port is free. If something is bound, change the host port in compose.yml.</p>
+
+  <h3>7.2 Build and Start</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker compose -f ~/mempalace-docker/compose.yml up -d --build</pre>
+  </div>
+
+  <h3>7.3 Verify Restart Policy</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker inspect mempalace-mcp --format '{{.HostConfig.RestartPolicy.Name}}'
+<span class="cm"># Must return: always</span>
+<span class="cm"># If it returns unless-stopped:</span>
+docker compose -f ~/mempalace-docker/compose.yml up -d --force-recreate</pre>
+  </div>
+
+  <h3>7.4 Check Logs and Mount</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker logs mempalace-mcp --tail 30
+<span class="cm"># Expect: Uvicorn running on http://0.0.0.0:8080 + Application startup complete</span>
+
+docker inspect mempalace-mcp --format '{{ range .Mounts }}{{ .Source }} -&gt; {{ .Destination }}{{ println }}{{ end }}'
+docker exec mempalace-mcp sh -c 'ls /root/.mempalace'
+<span class="cm"># Expected: locks  palace  wal</span></pre>
+  </div>
+</section>
+
+<section id="phase8">
+  <div class="phase-header"><div class="phase-num">8</div><div class="phase-title">Tailscale Funnel</div></div>
+
+  <h3>8.1 Install Tailscale</h3>
+  <div class="env-banner ps-env">Black PowerShell icon (Run as Administrator)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="ps">PowerShell</span> as Administrator</div>
+<pre>winget install Tailscale.Tailscale</pre>
+  </div>
+  <p>Open Tailscale and sign in to the tailnet. Then verify from WSL:</p>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>tailscale ip -4
+tailscale status
+<span class="cm"># Note the MagicDNS hostname: &lt;machine&gt;.&lt;tailnet-id&gt;.ts.net</span></pre>
+  </div>
+
+  <h3>8.2 Enable Funnel in Admin Console (mandatory)</h3>
+  <p>Go to <a href="https://login.tailscale.com/admin/machines" target="_blank">login.tailscale.com/admin/machines</a>, find this machine, open the three-dot menu, select Edit route settings, enable Funnel, save.</p>
+
+  <h3>8.3 Set Operator Permission (run once)</h3>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>sudo tailscale set --operator=$USER</pre>
+  </div>
+  <p>This allows future <code>tailscale serve</code> and <code>tailscale funnel</code> commands to run without sudo.</p>
+
+  <h3>8.4 Reset, Configure Serve, and Enable Funnel</h3>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>sudo tailscale serve reset
+tailscale serve status
+<span class="cm"># Confirm output: No serve config</span>
+
+sudo tailscale serve --bg 8080
+sudo tailscale funnel --bg 8080
+tailscale serve status</pre>
+  </div>
+  <p>Expected output:</p>
+  <div class="code-block">
+    <div class="code-label">Expected</div>
+<pre>https://&lt;machine&gt;.&lt;tailnet-id&gt;.ts.net (Funnel on)
+|-- / proxy http://127.0.0.1:8080</pre>
+  </div>
+
+  <h3>8.5 Test the Endpoint</h3>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>curl -s -H "Accept: text/event-stream" https://&lt;machine&gt;.&lt;tailnet-id&gt;.ts.net/mcp</pre>
+  </div>
+  <p>SSE ping lines confirm both Funnel routing and the container are working. Without the <code>Accept: text/event-stream</code> header the server returns HTTP 406, which is expected and not an error.</p>
+</section>
+
+<section id="phase9">
+  <div class="phase-header"><div class="phase-num">9</div><div class="phase-title">Backup (WSL cron)</div></div>
+  <p>Live palace: <code>/home/user/mempalace-data</code> (WSL). Snapshot destination depends on drive layout:</p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Setup</th><th>Windows target</th><th>WSL path</th></tr>
+      <tr><td>Dual-drive</td><td><code>D:\env\mempalace\backups</code></td><td><code>/mnt/d/env/mempalace/backups</code></td></tr>
+      <tr><td>Single-drive</td><td><code>C:\env\mempalace\backups</code></td><td><code>/mnt/c/env/mempalace/backups</code></td></tr>
+    </table>
+  </div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+
+  <h3>9.1 Write WSL Backup Script</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/backup-mempalace.sh &lt;&lt; 'EOF'
+#!/bin/bash
+if [ -d /mnt/d/env ]; then
+    TARGET=/mnt/d/env/mempalace/backups
+else
+    TARGET=/mnt/c/env/mempalace/backups
+fi
+mkdir -p "$TARGET"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+cp -r /home/user/mempalace-data "$TARGET/mempalace-data-$TIMESTAMP"
+ls -dt "$TARGET/mempalace-data-"* | tail -n +8 | xargs rm -rf
+echo "[ok] MemPalace snapshot $TIMESTAMP saved to $TARGET"
+EOF
+chmod +x ~/backup-mempalace.sh</pre>
+  </div>
+  <p>Grant passwordless sudo so cron can run it non-interactively, then test:</p>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>echo "$USER ALL=(ALL) NOPASSWD: /bin/bash /home/$USER/backup-mempalace.sh" | sudo tee /etc/sudoers.d/mempalace-backup
+
+bash ~/backup-mempalace.sh
+ls /mnt/d/env/mempalace/backups/ 2&gt;/dev/null || ls /mnt/c/env/mempalace/backups/ 2&gt;/dev/null</pre>
+  </div>
+
+  <h3>9.2 Set Up WSL Cron (every 6 hours)</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>(crontab -l 2&gt;/dev/null; echo "0 */6 * * * /bin/bash /home/user/backup-mempalace.sh") | crontab -
+
+crontab -l | grep mempalace</pre>
+  </div>
+</section>
+
+<section id="phase10">
+  <div class="phase-header"><div class="phase-num">10</div><div class="phase-title">Connect to Perplexity</div></div>
+  <p>Add MemPalace as a custom connector in Perplexity. Follow these steps in order:</p>
+  <ol class="steps-list">
+    <li data-n="1.">Open Perplexity and go to <strong>Connectors</strong>.</li>
+    <li data-n="2.">Click <strong>Add custom connector</strong>.</li>
+    <li data-n="3.">Fill in the fields as follows:</li>
+  </ol>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Icon</td><td>Any image under 128 KB (optional)</td></tr>
+      <tr><td>Name</td><td>Short and easy to recognize, e.g. <code>mem</code></td></tr>
+      <tr><td>Description</td><td><code>Memory Palace</code></td></tr>
+      <tr><td>MCP Server URL</td><td><code>https://&lt;machine&gt;.&lt;tailnet-id&gt;.ts.net/mcp</code></td></tr>
+    </table>
+  </div>
+  <ol class="steps-list">
+    <li data-n="4.">Click <strong>Advanced</strong> and set the following:</li>
+  </ol>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Advanced field</th><th>Value</th></tr>
+      <tr><td>Authentication</td><td>None</td></tr>
+      <tr><td>Transport</td><td>Streamable HTTP</td></tr>
+      <tr><td>Network Access</td><td>Public</td></tr>
+    </table>
+  </div>
+  <ol class="steps-list">
+    <li data-n="5.">Check the box: <em>I understand custom connectors can introduce risks.</em></li>
+    <li data-n="6.">A disclaimer appears: "Perplexity can't verify this app or guarantee answer quality, so only use connectors from sources you trust." Click to confirm.</li>
+    <li data-n="7.">Click <strong>Add</strong> in the bottom right corner.</li>
+    <li data-n="8.">Confirm the connector shows as connected.</li>
+  </ol>
+  <div class="note">If Perplexity connects but MCP tools are never called, verify you are using Perplexity's default model. Claude running inside Perplexity does not inherit custom connectors.</div>
+</section>
+
+<section id="phase11">
+  <div class="phase-header"><div class="phase-num">11</div><div class="phase-title">Restore Data from Backup</div></div>
+  <div class="note">Skip on a fresh install. Follow only when migrating an existing palace to a new machine.</div>
+  <div class="env-banner wsl-env">WSL (Ubuntu)</div>
+
+  <h3>11.1 Stop Container</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker compose -f ~/mempalace-docker/compose.yml down</pre>
+  </div>
+
+  <h3>11.2 Copy Latest Snapshot</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>LATEST=$(ls -dt /mnt/d/env/mempalace/backups/mempalace-data-* 2&gt;/dev/null | head -1)
+<span class="cm"># Single-drive: replace /mnt/d with /mnt/c above</span>
+cp -r "$LATEST/." /home/user/mempalace-data/</pre>
+  </div>
+
+  <h3>11.3 Restart and Reconnect</h3>
+  <div class="code-block">
+    <div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>docker compose -f ~/mempalace-docker/compose.yml up -d
+docker logs mempalace-mcp --tail 20</pre>
+  </div>
+  <p>After the container is running, call <code>mempalace_reconnect</code> via your MCP client to rebuild the HNSW vector index from the restored SQLite database.</p>
+</section>
+
+<div class="optional-section" id="caddy">
+  <div class="optional-toggle" onclick="toggleCaddy()">
+    <span class="opt-label">Optional: Caddy Auth Layer (Bearer Token Enforcement)</span>
+    <span class="opt-badge">Optional</span>
+    <span class="chevron" id="caddy-chevron">&#x25BC;</span>
+  </div>
+  <div class="optional-body" id="caddy-body">
+    <p>By default, port 8080 is exposed through Tailscale Funnel with no token check. Caddy adds a bearer-token enforcement layer so requests without the correct <code>Authorization: Bearer</code> header receive a 401 before reaching mcp-proxy.</p>
+    <div class="note"><strong>When to add this:</strong> if you share your Tailscale node with others or want an extra layer of access control beyond Tailscale's own auth.</div>
+    <div class="env-banner wsl-env">WSL (Ubuntu) for all steps in this section</div>
+
+    <h3>Generate a Bearer Token</h3>
+    <div class="code-block"><div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>python3 -c "import secrets; print(secrets.token_urlsafe(32))"</pre></div>
+    <p>Save the output as your <code>MCP_TOKEN</code>. Never commit it to version control.</p>
+
+    <h3>Write .env</h3>
+    <div class="code-block"><div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/mempalace-docker/.env &lt;&lt; 'EOF'
+MCP_TOKEN=YOUR_TOKEN_HERE
+EOF
+chmod 600 ~/mempalace-docker/.env</pre></div>
+
+    <h3>Write Caddyfile</h3>
+    <div class="code-block"><div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/mempalace-docker/Caddyfile &lt;&lt; 'EOF'
+:8081 {
+    @unauth {
+        not header Authorization "Bearer {$MCP_TOKEN}"
+    }
+    respond @unauth 401
+    reverse_proxy mempalace-mcp:8080
+}
+EOF</pre></div>
+
+    <h3>Update compose.yml to add Caddy service</h3>
+    <div class="code-block"><div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>cat &gt; ~/mempalace-docker/compose.yml &lt;&lt; 'EOF'
+services:
+  mempalace-mcp:
+    build: .
+    container_name: mempalace-mcp
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - /home/user/mempalace-data:/root/.mempalace
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: mempalace-caddy
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+EOF</pre></div>
+    <p><code>mempalace-mcp</code> now binds to <code>127.0.0.1:8080</code> (loopback only). Caddy on 8081 becomes the public-facing port. Point Tailscale Funnel at 8081:</p>
+    <div class="code-block"><div class="code-label"><span class="sh">WSL (Ubuntu)</span></div>
+<pre>sudo tailscale serve reset
+sudo tailscale serve --bg 8081
+sudo tailscale funnel --bg 8081</pre></div>
+
+    <h3>Update Perplexity Connector Config</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>MCP Server URL</td><td><code>https://&lt;machine&gt;.&lt;tailnet-id&gt;.ts.net/mcp</code></td></tr>
+        <tr><td>Authentication</td><td>Bearer Token</td></tr>
+        <tr><td>Token</td><td><code>YOUR_TOKEN_HERE</code></td></tr>
+        <tr><td>Transport</td><td>Streamable HTTP</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<section id="troubleshoot">
+  <h2>Troubleshooting</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr>
+      <tr><td>Container unresponsive mid-session, recovers after docker restart</td><td><code>restart</code> policy is <code>unless-stopped</code>, or WSL2 memory reclaim</td><td>Set <code>restart: always</code>; write .wslconfig with <code>memory=8GB</code> and <code>swap=0</code></td></tr>
+      <tr><td>docker inspect shows unless-stopped after up -d</td><td>compose.yml not saved before running command</td><td>Rewrite with cat EOF, run <code>docker compose up -d --force-recreate</code></td></tr>
+      <tr><td>tailscale funnel returns access denied</td><td>Funnel not enabled in admin console</td><td>Enable at login.tailscale.com/admin/machines</td></tr>
+      <tr><td>tailscale serve requires sudo every time</td><td>Operator not set</td><td>Run <code>sudo tailscale set --operator=$USER</code> once</td></tr>
+      <tr><td>HTTP 502 from public URL but curl localhost:8080 works</td><td>Funnel proxy target was wrong port</td><td>Run <code>sudo tailscale serve reset</code>, redo step 8.4 with <code>--bg 8080</code> for both serve and funnel</td></tr>
+      <tr><td>HTTP 406 from /mcp endpoint</td><td>Client not sending <code>Accept: text/event-stream</code></td><td>Add <code>-H "Accept: text/event-stream"</code> to curl; Perplexity sends this automatically</td></tr>
+      <tr><td>HTTP 400 Missing session ID</td><td><code>--stateless</code> flag missing from Dockerfile CMD</td><td>Rebuild with the <code>--stateless</code> flag (Phase 6.1)</td></tr>
+      <tr><td>Perplexity rejects MCP URL</td><td>Path not exactly <code>/mcp</code> or port is non-standard</td><td>Use <code>https://machine.tailnet-id.ts.net/mcp</code> with no port suffix</td></tr>
+      <tr><td>SQLite or ChromaDB lock errors</td><td>Data on <code>/mnt</code> Windows filesystem</td><td>Move data to <code>/home/user/mempalace-data</code> (WSL native)</td></tr>
+      <tr><td>Container fails to build (Dockerfile not found)</td><td>Clone incomplete or wrong directory</td><td>Confirm <code>ls ~/mempalace-docker/Dockerfile</code>; re-clone if missing</td></tr>
+      <tr><td>Backup writes nothing</td><td>Target path not mounted or script not executable</td><td>Verify <code>/mnt/d</code> or <code>/mnt/c</code> reachable; <code>chmod +x ~/backup-mempalace.sh</code></td></tr>
+      <tr><td>Palace empty after migration</td><td>Wrong snapshot path or container started before copy finished</td><td>Stop container, verify files in data dir, restart, call <code>mempalace_reconnect</code></td></tr>
+      <tr><td>.wslconfig symlink not followed</td><td>Created as junction (directory-only) not file symlink</td><td>Recreate with <code>New-Item -ItemType SymbolicLink</code> (requires Administrator or Developer Mode)</td></tr>
+      <tr><td>WSL install creates two Ubuntu entries</td><td>Used <code>wsl --install -d Ubuntu-24.04</code></td><td>Safe to ignore; or unregister with <code>wsl --unregister Ubuntu-24.04</code></td></tr>
+      <tr><td>sudo asks for password every command</td><td>sudoers entry not written or has a typo</td><td>Re-run the <code>tee /etc/sudoers.d/mempalace-backup</code> command from step 9.1</td></tr>
+      <tr><td>Ubuntu did not open after reboot, no UNIX password was set</td><td>Auto-launch did not trigger</td><td>Find Ubuntu in Start menu, launch it manually, then run <code>passwd</code> to set a password</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="reference">
+  <h2>Quick Reference</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Item</th><th>Value</th></tr>
+      <tr><td>Container name</td><td><code>mempalace-mcp</code></td></tr>
+      <tr><td>Host port</td><td>8080</td></tr>
+      <tr><td>Public port</td><td>443 (Tailscale Funnel HTTPS)</td></tr>
+      <tr><td>Data directory (WSL)</td><td><code>/home/user/mempalace-data</code></td></tr>
+      <tr><td>Container mount point</td><td><code>/root/.mempalace</code></td></tr>
+      <tr><td>Compose file</td><td><code>~/mempalace-docker/compose.yml</code></td></tr>
+      <tr><td>Backup target (dual-drive)</td><td><code>D:\env\mempalace\backups</code></td></tr>
+      <tr><td>Backup target (single-drive)</td><td><code>C:\env\mempalace\backups</code></td></tr>
+      <tr><td>WSL backup script</td><td><code>~/backup-mempalace.sh</code></td></tr>
+      <tr><td>Cron schedule</td><td>every 6 hours (<code>0 */6 * * *</code>)</td></tr>
+      <tr><td>MCP endpoint</td><td><code>https://&lt;machine&gt;.&lt;tailnet-id&gt;.ts.net/mcp</code></td></tr>
+      <tr><td>Serve command</td><td><code>sudo tailscale serve --bg 8080</code></td></tr>
+      <tr><td>Funnel command</td><td><code>sudo tailscale funnel --bg 8080</code></td></tr>
+      <tr><td>Reset command</td><td><code>sudo tailscale serve reset</code></td></tr>
+      <tr><td>Enter WSL</td><td>Type <code>wsl</code> in PowerShell, press Enter</td></tr>
+      <tr><td>Exit WSL</td><td>Type <code>exit</code>, press Enter</td></tr>
+      <tr><td>.wslconfig (dual-drive)</td><td><code>D:\.cfg\wsl\.wslconfig</code> via symlink at <code>C:\Users\&lt;user&gt;\.wslconfig</code></td></tr>
+      <tr><td>.wslconfig (single-drive)</td><td><code>C:\Users\&lt;username&gt;\.cfg\wsl\.wslconfig</code> via symlink at <code>C:\Users\&lt;user&gt;\.wslconfig</code></td></tr>
+    </table>
+  </div>
+  <p style="margin-top:32px;font-size:12px;color:var(--muted);">MemPalace MCP Installation Guide &nbsp;|&nbsp; Vasily S. Levin &nbsp;|&nbsp; 2026-06-30 &nbsp;|&nbsp; Internal use</p>
+</section>
+
+</main>
+</div>
+<script>
+function toggleCaddy() {
+  var body = document.getElementById('caddy-body');
+  var chevron = document.getElementById('caddy-chevron');
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    chevron.innerHTML = '&#x25BC;';
+  } else {
+    body.classList.add('open');
+    chevron.innerHTML = '&#x25B2;';
+  }
+}
+</script>
+</body>
+</html>
